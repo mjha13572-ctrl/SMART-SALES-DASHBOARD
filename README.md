@@ -1,4 +1,4 @@
-📊 Smart Sales Dashboard (Version 1.0)
+📊 SMART SALES DASHBOARD
 
 Overview
 
@@ -27,8 +27,6 @@ This project is the first milestone of a larger dashboard application that will 
 ## Project Structure
 
 smart-sales-dashboard/
-│
-├── version_1.0/
 │   ├── generate_dataset.py
 │   ├── dataset_analysis.py
 │   ├── charts.py
@@ -64,11 +62,11 @@ The project performs analyses such as:
 
 Clone the repository:
 
-git clone https://github.com/YOUR_USERNAME/smart-sales-dashboard.git
+git clone https://github.com/mjha13572-ctrl/SMART-SALES-DASHBOARD.git
 
 Move to the project folder:
 
-cd smart-sales-dashboard/version_1.0
+cd SMART-SALES-DASHBOARD
 
 Install the required libraries:
 
