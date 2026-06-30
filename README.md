@@ -209,6 +209,9 @@ GitHub: *(https://github.com/mjha13572-ctrl)*
 LinkedIn: *(https://www.linkedin.com/in/madhuri-jha-66b076321/)*
 
 ---
+## 🚀 Live Demo
+
+*(https://your-app-name.streamlit.app)*
 
 ## ⭐ If you like this project
 
