@@ -85,11 +85,19 @@ smart-sales-dashboard/
 
 ### Dashboard
 
-> [dashbord](screenshots/dashboard.png)
+> [dashbord](screenshots/dashboard/dashboard.png)
+> [dashbord](screenshots/dashboard/businessinsights.png)
+> [dashbord](screenshots/dashboard/downloadpdfreport.png)
+> [dashbord](screenshots/dashboard/sidebarsfilters.png)
+> [dashbord](screenshots/dashboard/downloadfilterdata.png)
+
 
 ### Charts
 
-> [charts](screenshots/charts.png)
+> [charts](screenshots/charts/chart1.png)
+> [charts](screenshots/charts/chart2.png)
+> [charts](screenshots/charts/chart3.png)
+> [charts](screenshots/charts/chart4.png)
 
 ### Pdf report
 
