@@ -211,7 +211,7 @@ LinkedIn: *(https://www.linkedin.com/in/madhuri-jha-66b076321/)*
 ---
 ## 🚀 Live Demo
 
-*(https://smart-sales-dashboard.streamlit.app)*
+*(https://smart-sales-dashboard-jnkvbpbrkxeit5tz2er55z.streamlit.app)*
 
 ## ⭐ If you like this project
 
