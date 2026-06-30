@@ -1,0 +1,11 @@
+Order_ID,Order_Date,Product,Category,Region,Quantity,Total_Sales,Payment_Method,Customer_Type,Profit
+ORD201,2025-02-01,Laptop,Electronics,North,4,3200,Credit Card,Regular,800
+ORD202,2025-02-02,Mouse,Electronics,South,15,450,UPI,Member,120
+ORD203,2025-02-03,Desk,Furniture,East,3,900,Debit Card,Regular,220
+ORD204,2025-02-04,Chair,Furniture,West,8,1600,Cash,Member,400
+ORD205,2025-02-05,Headphones,Electronics,North,10,1200,UPI,Regular,300
+ORD206,2025-02-06,Notebook,Stationery,South,25,375,Credit Card,Member,95
+ORD207,2025-02-07,Pen,Stationery,East,40,200,Cash,Regular,50
+ORD208,2025-02-08,Monitor,Electronics,West,5,1750,Debit Card,Member,450
+ORD209,2025-02-09,Printer,Electronics,North,2,600,UPI,Regular,150
+ORD210,2025-02-10,Table,Furniture,South,2,1400,Credit Card,Member,350

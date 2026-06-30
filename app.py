@@ -1,6 +1,61 @@
 import streamlit as st
 import pandas as pd
 import plotly.express as px
+from reportlab.platypus import SimpleDocTemplate, Paragraph
+from reportlab.lib.styles import getSampleStyleSheet
+from io import BytesIO
+from datetime import datetime
+from backend.file_extractor import load_file
+
+def generate_pdf(total_sales, total_profit, total_orders,
+                  best_category, recommendations):
+
+    buffer = BytesIO()
+
+    doc = SimpleDocTemplate(buffer)
+
+    styles = getSampleStyleSheet()
+
+    story = []
+
+    current_time = datetime.now().strftime("%d %B %Y | %I:%M %p")
+
+
+    story.append(Paragraph("<b><font size =20>SMART SALES DASHBOARD REPORT</font></b>", styles["Title"]))
+
+    story.append(Paragraph("<br/>", styles["Normal"]))
+    story.append(
+    Paragraph(
+        f"<b>Generated On:</b> {current_time}",
+        styles["Normal"]
+    )
+)
+
+    story.append(
+    Paragraph("<b><font size=16>Executive Summary</font></b>",
+              styles["Heading1"])
+)
+    story.append(Paragraph("<br/>", styles["Normal"]))
+
+    story.append(Paragraph(f"Total Sales: ₹{total_sales:,.2f}", styles["Normal"]))
+    story.append(Paragraph(f"Total Profit: ₹{total_profit:,.2f}", styles["Normal"]))
+    story.append(Paragraph(f"Total Orders: {total_orders}", styles["Normal"]))
+    story.append(Paragraph(f"Best Category: {best_category}", styles["Normal"]))
+
+    story.append(Paragraph("<br/>", styles["Normal"]))
+
+    story.append(Paragraph("<br/><b><font size =16>Business Recommendations</font></b>", styles["Heading1"]))
+
+    for rec in recommendations:
+        story.append(Paragraph(f"✓ {rec}", styles["Normal"]))
+
+    doc.build(story)
+
+    buffer.seek(0)
+
+    return buffer
+
+
 
 st.set_page_config(
     page_title="Smart Sales Dashboard",
@@ -9,7 +64,39 @@ st.set_page_config(
 )
 
 st.title("📊 Smart Sales Dashboard")
-df = pd.read_csv("sales.csv")
+uploaded_file = st.file_uploader(
+    "📂 Upload your sales CSV file",
+    type=["csv", "xlsx", "xls", "pdf", "docx"]
+)
+
+if uploaded_file is not None:
+    df = load_file(uploaded_file)
+    st.sidebar.success("Using uploaded dataset")
+else:
+    df = pd.read_csv("sample_data/sales.csv")
+    st.sidebar.info("Using default dataset: sales.csv")
+
+required_columns = [
+    "Order_ID",
+    "Order_Date",
+    "Product",
+    "Category",
+    "Region",
+    "Quantity",
+    "Total_Sales",
+    "Payment_Method",
+    "Customer_Type",
+    "Profit"
+]
+missing_columns = [
+    col for col in required_columns
+    if col not in df.columns
+]
+if missing_columns:
+    st.error(
+        f"❌ Invalid dataset!\n\nMissing columns: {', '.join(missing_columns)}"
+    )
+    st.stop()
 
 # ---------------- Sidebar Filters ----------------
 
@@ -47,8 +134,10 @@ filtered_df = df[
 total_sales = filtered_df["Total_Sales"].sum()
 total_orders = len(filtered_df)
 average_sales = filtered_df["Total_Sales"].mean()
+total_profit = filtered_df["Profit"].sum()
+profit_margin = (total_profit / total_sales) * 100
 
-col1, col2, col3 = st.columns(3)
+col1, col2, col3, col4 = st.columns(4)
 
 with col1:
     st.metric("💰 Total Sales", f"₹{total_sales:,.2f}")
@@ -58,6 +147,9 @@ with col2:
 
 with col3:
     st.metric("📈 Average Sale", f"₹{average_sales:,.2f}")
+
+with col4:
+    st.metric("💹 Total Profit", f"₹{total_profit:,.2f}", delta=f"{profit_margin:.1f}% margin")
 
 
 region_sales = filtered_df.groupby("Region")["Total_Sales"].sum().reset_index()
@@ -121,8 +213,6 @@ payment_fig = px.pie(
     hole=0.4
 )
 
-
-
 customer_type = (
     filtered_df.groupby("Customer_Type")
     .size()
@@ -136,6 +226,18 @@ customer_fig = px.pie(
     title="Customer type distribution",
     hole=0.4
 )
+
+profit_region = (
+    filtered_df.groupby("Region")["Profit"]
+    .sum()
+    .reset_index()
+)
+profit_fig = px.bar(
+    profit_region, x="Region",
+    y="Profit",
+    color="Region",
+    title="💹 Profit by Region",
+    color_discrete_sequence=px.colors.qualitative.Pastel)
 
 
 filtered_df["Order_Date"] = pd.to_datetime(filtered_df["Order_Date"])
@@ -169,6 +271,67 @@ monthly_sales_fig = px.line(
     markers=True
 )
 
+st.subheader("🤖 Smart Business Recommendations")
+recommendations = []
+# Lowest Performing Region
+region_sales = df.groupby("Region")["Total_Sales"].sum()
+lowest_region = region_sales.idxmin()
+
+recommendations.append(
+    f"📍 Focus on the **{lowest_region}** region to improve sales through targeted marketing."
+)
+
+# Best Customer Type
+customer_sales = df.groupby("Customer_Type")["Total_Sales"].sum()
+best_customer = customer_sales.idxmax()
+
+recommendations.append(
+    f"👥 **{best_customer}** customers generate the highest revenue. Consider loyalty rewards."
+)
+
+# Most Profitable Category
+category_profit = df.groupby("Category")["Profit"].sum()
+best_category = category_profit.idxmax()
+
+recommendations.append(
+    f"🏆 **{best_category}** is the most profitable category. Increase inventory and promotions."
+)
+
+# Profit Margin
+profit_margin = (df["Profit"].sum() / df["Total_Sales"].sum()) * 100
+
+if profit_margin < 20:
+    recommendations.append(
+        f"📉 Profit margin is only **{profit_margin:.1f}%**. Review pricing and supplier costs."
+    )
+elif profit_margin < 35:
+    recommendations.append(
+        f"⚠️ Profit margin is **{profit_margin:.1f}%**. There is room for improvement."
+    )
+else:
+    recommendations.append(
+        f"📈 Excellent profit margin of **{profit_margin:.1f}%**. Maintain your current strategy."
+    )
+
+# Payment Method
+top_payment = df["Payment_Method"].mode()[0]
+
+recommendations.append(
+    f"💳 Most customers prefer **{top_payment}**. Ensure this payment option remains fast and reliable."
+)
+
+#display all the insights
+for recommendation in recommendations:
+    st.markdown(f"- {recommendation}")
+
+pdf = generate_pdf(
+    total_sales,
+    total_profit,
+    total_orders,
+    best_category,
+    recommendations
+)    
+
 
 col1, col2 = st.columns(2)
 
@@ -200,13 +363,26 @@ with col6:
     st.subheader("📈 Monthly Sales Trend")
     st.plotly_chart(monthly_sales_fig, use_container_width=True)
 
-    csv = filtered_df.to_csv(index=False).encode("utf-8")
+csv = filtered_df.to_csv(index=False).encode("utf-8")
+
+col7, = st.columns(1)    
+
+with col7:
+    st.subheader("Region wise profit")
+    st.plotly_chart(profit_fig, use_container_width=True )    
 
 st.download_button(
     label="📥 Download Filtered Data",
     data=csv,
     file_name="filtered_sales_data.csv",
     mime="text/csv"
+)
+
+st.sidebar.download_button(
+    label="📄 Download PDF Report",
+    data=pdf.getvalue(),
+    file_name="sales_report.pdf",
+    mime="application/pdf"
 )
 
 st.markdown("---")
